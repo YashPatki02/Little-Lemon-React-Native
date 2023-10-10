@@ -7,15 +7,15 @@ export default function OnboardingScreen({ navigation }) {
     const [name, onNameChange] = useState("");
     const [email, onEmailChange] = useState("");
 
-    // const [buttonDisabled, setButtonDisabled] = useState(true);
+    const [buttonDisabled, setButtonDisabled] = useState(true);
 
-    // useEffect(() => {
-    //     if (name && email) {
-    //         setButtonDisabled(false);
-    //     } else {
-    //         setButtonDisabled(true);
-    //     }
-    // }, [name, email]);
+    useEffect(() => {
+        if (name && email) {
+            setButtonDisabled(false);
+        } else {
+            setButtonDisabled(true);
+        }
+    }, [name, email]);
 
     return (
         <View style={styles.container}>
@@ -58,8 +58,10 @@ export default function OnboardingScreen({ navigation }) {
                     title="Next"
                     onPress={() => {
                         navigation.navigate("Profile", { name, email });
+                        onNameChange("");
+                        onEmailChange("");
                     }}
-                    // disabled={buttonDisabled}
+                    disabled={buttonDisabled}
                     style={{ backgroundColor: "#495E57" }}
                     textStyles={{
                         fontSize: 20,

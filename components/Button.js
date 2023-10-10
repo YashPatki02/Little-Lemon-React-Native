@@ -10,7 +10,7 @@ export default function Button({
 }) {
     return (
         <Pressable
-            style={[disabled ? styles.disabled : styles.button, style]}
+            style={[disabled ? styles.disabled : styles.button, style, disabled && styles.disabled]}
             onPress={onPress}
             disabled={disabled}
         >

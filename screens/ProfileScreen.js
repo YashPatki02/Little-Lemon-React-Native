@@ -6,6 +6,7 @@ import {
     Image,
     TextInput,
     Pressable,
+    Alert,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import Button from "../components/Button";
@@ -72,7 +73,7 @@ export default function ProfileScreen({ navigation }) {
             initials += name[0];
         });
         return initials.toUpperCase();
-    }
+    };
 
     const saveUserDataToStorage = async () => {
         try {
@@ -87,6 +88,8 @@ export default function ProfileScreen({ navigation }) {
                 newsletter,
             };
             await AsyncStorage.setItem("userData", JSON.stringify(userData));
+            await AsyncStorage.setItem("image", image);
+            await AsyncStorage.setItem("name", name);
         } catch (error) {
             console.error("Error saving user data: ", error);
         }
@@ -115,6 +118,39 @@ export default function ProfileScreen({ navigation }) {
 
         loadUserDataFromStorage();
     }, []);
+
+    const handleLogOut = async () => {
+        try {
+            await AsyncStorage.removeItem("userData");
+            await AsyncStorage.removeItem("image");
+            await AsyncStorage.removeItem("name");
+            navigation.navigate("Onboarding");
+        } catch (error) {
+            console.error("Error logging out: ", error);
+        }
+    };
+
+    const handleDiscardChanges = async () => {
+        try {
+            const userDataString = await AsyncStorage.getItem("userData");
+            if (userDataString !== null) {
+                const userData = JSON.parse(userDataString);
+
+                onNameChange(userData.name);
+                onEmailChange(userData.email);
+                onPhoneChange(userData.phone);
+                setImage(userData.image);
+                setOrderStatus(userData.orderStatus);
+                setPasswordChange(userData.passwordChange);
+                setSpecialOffers(userData.specialOffers);
+                setNewsletter(userData.newsletter);
+            }
+
+            navigation.navigate("Home");
+        } catch (error) {
+            console.error("Error discarding changes: ", error);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -230,10 +266,7 @@ export default function ProfileScreen({ navigation }) {
                 <View style={styles.buttonContainer}>
                     <Button
                         title="Log Out"
-                        onPress={() => {
-                            navigation.navigate("Onboarding");
-                            AsyncStorage.removeItem("userData");
-                        }}
+                        onPress={handleLogOut}
                         style={{
                             width: 300,
                             color: "#fff",
@@ -249,9 +282,7 @@ export default function ProfileScreen({ navigation }) {
                 <View style={styles.saveButtons}>
                     <Button
                         title="Discard Changes"
-                        onPress={() => {
-                            navigation.navigate("Onboarding");
-                        }}
+                        onPress={handleDiscardChanges}
                         style={{
                             width: 150,
                             color: "#495E57",
@@ -268,6 +299,8 @@ export default function ProfileScreen({ navigation }) {
                         title="Save Changes"
                         onPress={() => {
                             saveUserDataToStorage();
+                            Alert.alert("Changes saved!");
+                            navigation.navigate("Home");
                         }}
                         style={{
                             width: 150,

@@ -1,10 +1,20 @@
-import { StyleSheet, Text, View, AsyncStorage, Image } from "react-native";
+import {
+    StyleSheet,
+    Text,
+    View,
+    Image,
+    Pressable,
+} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import OnboardingScreen from "./screens/OnboardingScreen";
 import ProfileScreen from "./screens/ProfileScreen";
+import HomeScreen from "./screens/HomeScreen";
+
+import Header from "./components/Header";
 
 const Stack = createNativeStackNavigator();
 
@@ -28,9 +38,7 @@ export default function App() {
     };
 
     useEffect(() => {
-        setTimeout(() => {
-            checkFirstLaunch();
-        }, 5000);
+        checkFirstLaunch();
         setIsLoading(false);
     }, []);
 
@@ -45,17 +53,46 @@ export default function App() {
                 <Text>Loading...</Text>
             </View>
         );
-    }
+    }    
 
     return (
         <NavigationContainer>
             <Stack.Navigator>
                 <Stack.Screen name="Onboarding" component={OnboardingScreen} />
                 <Stack.Screen
+                    name="Home"
+                    component={HomeScreen}
+                    options={{
+                        headerLeft: () => {
+                            return <></>;
+                        },
+                        headerRight: () => {
+                            return (
+                                <Header />
+                            );
+                        },
+                        headerTitle: () => {
+                            return (
+                                <Image
+                                    source={require("./assets/images/Logo.png")}
+                                    style={{
+                                        width: 100,
+                                        height: 80,
+                                        marginTop: -20,
+                                    }}
+                                    resizeMode="contain"
+                                />
+                            );
+                        },
+                    }}
+                />
+                <Stack.Screen
                     name="Profile"
                     component={ProfileScreen}
                     options={{
-                        headerLeft: null,
+                        headerLeft: () => {
+                            return <></>;
+                        },
                         headerTitle: () => {
                             return (
                                 <Image
