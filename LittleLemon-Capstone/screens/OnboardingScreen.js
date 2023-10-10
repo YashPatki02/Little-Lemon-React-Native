@@ -7,15 +7,15 @@ export default function OnboardingScreen({ navigation }) {
     const [name, onNameChange] = useState("");
     const [email, onEmailChange] = useState("");
 
-    const [buttonDisabled, setButtonDisabled] = useState(true);
+    // const [buttonDisabled, setButtonDisabled] = useState(true);
 
-    useEffect(() => {
-        if (name && email) {
-            setButtonDisabled(false);
-        } else {
-            setButtonDisabled(true);
-        }
-    }, [name, email]);
+    // useEffect(() => {
+    //     if (name && email) {
+    //         setButtonDisabled(false);
+    //     } else {
+    //         setButtonDisabled(true);
+    //     }
+    // }, [name, email]);
 
     return (
         <View style={styles.container}>
@@ -40,7 +40,7 @@ export default function OnboardingScreen({ navigation }) {
                 </Text>
             </View>
             <View style={styles.formContainer}>
-                <Text style={styles.text}>Name</Text>
+                <Text style={styles.text}>Full Name</Text>
                 <TextInput
                     style={styles.input}
                     onChangeText={onNameChange}
@@ -59,7 +59,13 @@ export default function OnboardingScreen({ navigation }) {
                     onPress={() => {
                         navigation.navigate("Profile", { name, email });
                     }}
-                    disabled={buttonDisabled}
+                    // disabled={buttonDisabled}
+                    style={{ backgroundColor: "#495E57" }}
+                    textStyles={{
+                        fontSize: 20,
+                        color: "#fff",
+                        textAlign: "center",
+                    }}
                 />
             </View>
         </View>

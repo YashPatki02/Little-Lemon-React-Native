@@ -1,25 +1,34 @@
-import {Pressable, Text, StyleSheet } from "react-native";
+import { Pressable, Text, StyleSheet } from "react-native";
 import React from "react";
 
-export default function Button({ title, onPress, disabled }) {
+export default function Button({
+    title,
+    onPress,
+    disabled,
+    style,
+    textStyles,
+}) {
     return (
-        <Pressable style={disabled ? styles.disabled : styles.button} onPress={onPress} disabled={disabled}>
-            <Text style={styles.text}>{title}</Text>
+        <Pressable
+            style={[disabled ? styles.disabled : styles.button, style]}
+            onPress={onPress}
+            disabled={disabled}
+        >
+            <Text style={[styles.text, textStyles] }>{title}</Text>
         </Pressable>
     );
 }
 
 const styles = StyleSheet.create({
     button: {
-        borderRadius: 10,
         padding: 10,
         margin: 10,
         width: 200,
         backgroundColor: "#495E57",
+        borderRadius: 10,
     },
     text: {
-        fontSize: 20,
-        color: "#fff",
+        fontSize: 14,
         textAlign: "center",
     },
     disabled: {

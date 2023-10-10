@@ -51,7 +51,26 @@ export default function App() {
         <NavigationContainer>
             <Stack.Navigator>
                 <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-                <Stack.Screen name="Profile" component={ProfileScreen} />
+                <Stack.Screen
+                    name="Profile"
+                    component={ProfileScreen}
+                    options={{
+                        headerLeft: null,
+                        headerTitle: () => {
+                            return (
+                                <Image
+                                    source={require("./assets/images/Logo.png")}
+                                    style={{
+                                        width: 100,
+                                        height: 80,
+                                        marginTop: -20,
+                                    }}
+                                    resizeMode="contain"
+                                />
+                            );
+                        },
+                    }}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );
