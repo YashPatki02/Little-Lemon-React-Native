@@ -186,6 +186,7 @@ export default function ProfileScreen({ navigation }) {
                     title="Remove"
                     onPress={() => {
                         setImage(null);
+                        AsyncStorage.removeItem("image");
                     }}
                     style={{
                         width: 100,
