@@ -10,11 +10,11 @@ import {
     ActivityIndicator,
     Pressable,
     SafeAreaView,
+    KeyboardAvoidingView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { getSectionListData, useUpdateEffect } from "../utils.js";
-import { Searchbar } from "react-native-paper";
 import debounce from "lodash.debounce";
 import {
     createTable,
@@ -22,12 +22,13 @@ import {
     saveMenuItems,
     filterByQueryAndCategories,
 } from "../database.js";
+import menuData from "../assets/menuData.js";
 
 import Filters from "../components/Filters";
-import Button from "../components/Button";
 
 const API_URL =
     "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/capstone.json";
+
 const sections = ["starters", "mains", "desserts"];
 const imageMapping = {
     greekSalad: require("../assets/images/greekSalad.png"),
@@ -38,19 +39,18 @@ const imageMapping = {
 };
 
 function Item({ title, price, description, image }) {
-    let imageSource = null;
-    if (typeof image === "string") {
-        const imageName = image.split(".")[0];
-        imageSource = imageMapping[imageName];
+    let imageName;
+    if (image !== null && image !== undefined) {
+        imageName = image.split(".")[0];
     } else {
-        imageSource = imageMapping.pasta;
+        imageName = "greekSalad";
     }
 
     return (
         <View style={styles.item}>
             <View style={styles.imageContainer}>
                 <Image
-                    source={imageSource}
+                    source={imageMapping[imageName]}
                     resizeMode="cover"
                     style={styles.itemImage}
                 />
@@ -68,12 +68,12 @@ export default function HomeScreen({ navigation }) {
     const [name, onNameChange] = useState("");
     const [email, onEmailChange] = useState("");
 
-    const [data, setData] = useState([]);
     const [sectionData, setSectionData] = useState([]);
     const [dataReceived, setDataReceived] = useState(false);
+
     const [searchBarText, setSearchBarText] = useState("");
     const [searching, setSearching] = useState(false);
-    const [query, onQueryChange] = useState("");
+    const [query, setQuery] = useState("");
     const [filterSelections, setFilterSelections] = useState(
         sections.map(() => false)
     );
@@ -99,8 +99,11 @@ export default function HomeScreen({ navigation }) {
     const fetchData = async () => {
         try {
             const response = await fetch(API_URL);
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
             const data = await response.json();
-            return data;
+            return menuData;
         } catch (error) {
             console.error("Error fetching data: ", error);
             throw error;
@@ -108,39 +111,31 @@ export default function HomeScreen({ navigation }) {
     };
 
     useEffect(() => {
-        fetchData()
-            .then((dat) => {
-                const sectionListData = getSectionListData(dat.menu);
+        createTable();
+        getMenuItems().then((menuItems) => {
+            if (menuItems.length === 0) {
+                fetchData()
+                    .then((data) => {
+                        saveMenuItems(menuData.menu);
+
+                        const sectionListData = getSectionListData(
+                            menuData.menu
+                        );
+
+                        setSectionData(sectionListData);
+                        setDataReceived(true);
+                    })
+                    .catch((error) => {
+                        Alert.alert("Error", error.message);
+                    });
+            } else {
+                const sectionListData = getSectionListData(menuItems);
+
                 setSectionData(sectionListData);
                 setDataReceived(true);
-            })
-            .catch((error) => {
-                Alert.alert("Error", error.message);
-            });
+            }
+        });
     }, []);
-
-    // useEffect(() => {
-    //     (async () => {
-    //         try {
-    //             await createTable();
-    //             let menuItems = await getMenuItems();
-
-    //             if (!menuItems.length) {
-    //                 menuItems = await fetchData();
-    //                 await saveMenuItems(menuItems);
-    //             }
-
-    //             console.log("menuItems" + menuItems.menu)
-
-    //             const sectionListData = getSectionListData(menuItems.menu);
-    //             setData(sectionListData);
-    //             setSectionData(sectionListData);
-    //             setDataReceived(true);
-    //         } catch (e) {
-    //             Alert.alert(e.message);
-    //         }
-    //     })();
-    // }, []);
 
     useUpdateEffect(() => {
         (async () => {
@@ -157,7 +152,7 @@ export default function HomeScreen({ navigation }) {
                     activeCategories
                 );
                 const sectionListData = getSectionListData(menuItems);
-                setData(sectionListData);
+                setSectionData(sectionListData);
             } catch (e) {
                 Alert.alert(e.message);
             }
@@ -197,28 +192,32 @@ export default function HomeScreen({ navigation }) {
                         style={styles.heroImage}
                     />
                 </View>
-                <Pressable
-                    onPress={() => setSearching(true)}
-                    onBlur={() => setSearching(false)}
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
                 >
-                    {searching ? (
-                        <TextInput
-                            style={styles.inputOpened}
-                            onChangeText={onQueryChange}
-                            value={query}
-                            placeholder="Search"
-                            onBlur={() => setSearching(false)}
-                        />
-                    ) : (
-                        <View style={styles.inputBox}>
-                            <Image
-                                source={require("../assets/images/search.png")}
-                                resizeMode="contain"
-                                style={{ ...styles.input }}
+                    <Pressable
+                        onPress={() => setSearching(true)}
+                        onBlur={() => setSearching(false)}
+                    >
+                        {searching ? (
+                            <TextInput
+                                onChangeText={handleSearchChange}
+                                value={searchBarText}
+                                iconColor="gray"
+                                style={styles.inputOpened}
+                                onBlur={() => setSearching(false)}
                             />
-                        </View>
-                    )}
-                </Pressable>
+                        ) : (
+                            <View style={styles.inputBox}>
+                                <Image
+                                    source={require("../assets/images/search.png")}
+                                    resizeMode="contain"
+                                    style={{ ...styles.input }}
+                                />
+                            </View>
+                        )}
+                    </Pressable>
+                </KeyboardAvoidingView>
             </View>
 
             {!dataReceived ? (
@@ -229,22 +228,20 @@ export default function HomeScreen({ navigation }) {
                 />
             ) : (
                 <SafeAreaView style={styles.container}>
-                    {/* <Filters
+                    <Filters
                         selections={filterSelections}
                         onChange={handleFiltersChange}
-                        sections={sectionData}
-                    /> */}
+                        sections={sections}
+                    />
                     <FlatList
                         style={styles.flatList}
                         data={sectionData}
-                        keyExtractor={(item, index) => index.toString()} // Ensure unique keys
+                        keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item }) =>
                             item.data.map((itemData, index) => {
-                                console.log(itemData);
-
                                 return (
                                     <Item
-                                        key={index.toString()} // Ensure unique keys
+                                        key={index.toString()}
                                         title={itemData.title}
                                         price={itemData.price}
                                         description={itemData.description}
@@ -283,7 +280,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 16,
-        textAlign: "start",
+        textAlign: "left",
         marginBottom: 20,
         color: "#fff",
         width: 200,
@@ -319,11 +316,11 @@ const styles = StyleSheet.create({
     },
     inputOpened: {
         height: 40,
-        width: "80%",
-        backgroundColor: "#fff",
-        padding: 10,
-        borderRadius: 30,
+        width: 300,
+        borderRadius: 40,
         alignSelf: "center",
+        backgroundColor: "#fff",
+        paddingLeft: 20,
     },
     item: {
         backgroundColor: "#fff",
@@ -362,9 +359,9 @@ const styles = StyleSheet.create({
         height: 80,
         borderRadius: 10,
         marginRight: 10,
-        overflow: "hidden", 
-        alignItems: "center", 
-        justifyContent: "center", 
+        overflow: "hidden",
+        alignItems: "center",
+        justifyContent: "center",
     },
     textContainer: {
         flex: 1,

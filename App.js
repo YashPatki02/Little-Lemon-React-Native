@@ -3,7 +3,6 @@ import {
     Text,
     View,
     Image,
-    Pressable,
 } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -55,6 +54,7 @@ export default function App() {
         );
     }    
 
+
     return (
         <NavigationContainer>
             <Stack.Navigator>
@@ -63,6 +63,7 @@ export default function App() {
                     name="Home"
                     component={HomeScreen}
                     options={{
+                        gestureEnabled: false,
                         headerLeft: () => {
                             return <></>;
                         },
@@ -90,6 +91,7 @@ export default function App() {
                     name="Profile"
                     component={ProfileScreen}
                     options={{
+                        gestureEnabled: false,
                         headerLeft: () => {
                             return <></>;
                         },

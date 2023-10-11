@@ -4,10 +4,13 @@ const db = SQLite.openDatabase("little_lemon");
 
 export async function createTable() {
     return new Promise((resolve, reject) => {
+        db.transaction((tx) => {
+            tx.executeSql("drop table if exists menuitems;");
+        });
         db.transaction(
             (tx) => {
                 tx.executeSql(
-                    "create table if not exists menuitems (id integer primary key not null, title text, description text, price text, category text);"
+                    "create table if not exists menuitems (title text primary key not null, description text, price text, category text, image text);"
                 );
             },
             reject,
@@ -29,19 +32,14 @@ export async function getMenuItems() {
 export function saveMenuItems(menuItems) {
     db.transaction((tx) => {
         menuItems.forEach((item) => {
+            const { name, description, price, category, image } = item;
             const query =
-                "insert into menuitems (id, title, description, price, category) VALUES (?, ?, ?, ?, ?)";
+                "insert into menuitems (title, description, price, category, image) VALUES (?, ?, ?, ?, ?)";
             tx.executeSql(
                 query,
-                [
-                    item?.id,
-                    item?.title,
-                    item?.description,
-                    item?.price,
-                    item?.category?.title,
-                ],
-                (_, { rows }) => {
-                    console.log("Success");
+                [name, description, price, category, image],
+                (_, { insertId }) => {
+                    console.log("Inserted row ID: ", insertId);
                 },
                 (err) => {
                     console.log("Failed: " + err);

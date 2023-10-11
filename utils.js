@@ -10,9 +10,10 @@ export function getSectionListData(data) {
                 item.data = [
                     ...item.data,
                     {
-                        id: section.id,
                         title: section.name,
                         price: section.price,
+                        description: section.description,
+                        image: section.image,
                     },
                 ];
                 found = true;

@@ -10,7 +10,7 @@ export default function OnboardingScreen({ navigation }) {
     const [buttonDisabled, setButtonDisabled] = useState(true);
 
     useEffect(() => {
-        if (name && email) {
+        if (name && email && email.includes("@") && email.includes(".com") && email.length > 5) {
             setButtonDisabled(false);
         } else {
             setButtonDisabled(true);
@@ -69,6 +69,9 @@ export default function OnboardingScreen({ navigation }) {
                         textAlign: "center",
                     }}
                 />
+                {buttonDisabled && <Text style={styles.error}>
+                    Please enter a valid name and email address.
+                </Text>}
             </View>
         </View>
     );
@@ -112,4 +115,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         marginBottom: 120,
     },
+    error: {
+        color: "gray",
+        fontSize: 12,
+        textAlign: "center",
+        paddingHorizontal: 40,
+    }
 });

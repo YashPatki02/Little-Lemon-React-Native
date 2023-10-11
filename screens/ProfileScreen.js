@@ -88,7 +88,10 @@ export default function ProfileScreen({ navigation }) {
                 newsletter,
             };
             await AsyncStorage.setItem("userData", JSON.stringify(userData));
-            await AsyncStorage.setItem("image", image);
+
+            if (image !== null) {
+                await AsyncStorage.setItem("image", image);
+            }
             await AsyncStorage.setItem("name", name);
         } catch (error) {
             console.error("Error saving user data: ", error);

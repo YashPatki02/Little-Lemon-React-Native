@@ -15,10 +15,11 @@ const Filters = ({ onChange, selections, sections }) => {
                         alignItems: "center",
                         padding: 16,
                         backgroundColor: selections[index]
-                            ? "#EE9972"
+                            ? "#F4CE14"
                             : "#495E57",
-                        borderWidth: 1,
+                        borderRadius: 32,
                         borderColor: "white",
+                        marginBottom: 16,
                     }}
                 >
                     <View>
@@ -27,7 +28,7 @@ const Filters = ({ onChange, selections, sections }) => {
                                 color: selections[index] ? "black" : "white",
                             }}
                         >
-                            {section}
+                            {section.toUpperCase()}
                         </Text>
                     </View>
                 </TouchableOpacity>
